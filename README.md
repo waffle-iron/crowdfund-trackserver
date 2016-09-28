@@ -7,14 +7,11 @@ It uses koa@next, webpack, babel and pm2 for the basics. Both the aws-sdk and kn
 
 ### Development
 
-* Install PM2 `npm install pm2 -g`
 * Run `npm install`
 * Run `npm run build` to build the dist folder
-* Run `npm start` or `pm2 start dist/app-bundle.js` 
+* Run `npm start` or `pm2 start dist/app-bundle.js`
 * Open or `curl -v` the following: `http://localhost:5000/tracklist`
 * Hope to see some results
-
-[![JavaScript Style Guide](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
 
 ### Environmental Variables
 
@@ -28,3 +25,5 @@ Make sure the environmental variables are correctly loaded. A sample for an `.en
 ### Docker
 
 A Dockerfile is provided for easy setup.
+
+[![JavaScript Style Guide](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
