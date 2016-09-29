@@ -45,15 +45,15 @@ router
   })
 
 app
-  .use(convert(cache.middleware()))
-  .use(convert(cors(corsOptions)))
-  .use(router.routes())
-  .use(router.allowedMethods())
   .use(async (ctx, next) => {
     const start = new Date()
     await next()
     const ms = new Date() - start
     console.log(`${ctx.method} ${ctx.url} ${ctx.status} - ${ms}ms`)
   })
+  .use(convert(cache.middleware()))
+  .use(convert(cors(corsOptions)))
+  .use(router.routes())
+  .use(router.allowedMethods())
 
 app.listen(5000)
