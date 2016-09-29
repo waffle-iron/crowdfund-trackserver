@@ -3,6 +3,7 @@ import Koa from 'koa'
 import koaRouter from 'koa-router'
 import convert from 'koa-convert'
 import cors from 'kcors'
+import cache from 'koa-cache-lite'
 import getListOfTracks from './s3'
 
 const app = new Koa()
@@ -12,6 +13,14 @@ const corsOptions = {
     return ctx.request.origin
   }
 }
+
+// use in-memory cache
+cache
+  .configure({
+    '/tracklist': 5 * 60 * 1000 // ms
+  }, {
+    debug: true
+  })
 
 router
   .get('/', async (ctx, next) => {
@@ -36,6 +45,7 @@ router
   })
 
 app
+  .use(convert(cache.middleware()))
   .use(convert(cors(corsOptions)))
   .use(router.routes())
   .use(router.allowedMethods())

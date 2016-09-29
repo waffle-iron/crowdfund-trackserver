@@ -23,6 +23,7 @@
     "kcors": "latest",
     "knox": "^0.9.2",
     "koa": "^2.0.0-alpha.3",
+    "koa-cache-lite": "^3.4.2",
     "koa-convert": "^1.2.0",
     "koa-router": "^7.0.1",
     "lodash": "^4.16.2",
