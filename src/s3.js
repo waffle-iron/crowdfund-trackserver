@@ -84,7 +84,8 @@ export function fetchTrackInfo (object) {
           const metaMap = {
             'name': 'x-amz-meta-track-name',
             'artist': 'x-amz-meta-artist',
-            'album': 'x-amz-meta-album'
+            'album': 'x-amz-meta-album',
+            'duration': 'x-amz-meta-track-duration'
           }
           Object.keys(metaMap).map(function (k) {
             resultObj[k] = objectHeaders[metaMap[k]] ? objectHeaders[metaMap[k]] : ''
