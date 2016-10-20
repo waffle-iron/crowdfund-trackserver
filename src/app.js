@@ -17,9 +17,10 @@ const corsOptions = {
 // use in-memory cache
 cache
   .configure({
-    '/tracklist': 5 * 60 * 1000 // ms
+    '/tracklist': 3 * 60 * 1000 // ms
   }, {
-    debug: true
+    debug: true,
+    ignoreNoCache: true
   })
 
 router
