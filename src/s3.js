@@ -29,8 +29,8 @@ const knoxSettings = {
 }
 const client = knox.createClient(knoxSettings)
 const urlMacro = `https://${env.AWS_S3_BUCKET_NAME}.s3.amazonaws.com`
-const keyFilePath = 'test/track/audio/unprocessed'
-const keyVisualPath = 'test/track/visual/unprocessed'
+const keyFilePath = 'track/audio'
+const keyVisualPath = 'track/visual'
 
 export default function () {
   return new Promise(function (resolve, reject) {
@@ -94,7 +94,8 @@ export function fetchTrackInfo (object) {
           // TODO:  allow for different file types (.gif, .webm)
           const visualKey = objectHeaders['x-amz-meta-visual-key'] || null
           if (visualKey) {
-            resultObj['cover_art_url'] = `${urlMacro}/${keyVisualPath}/${visualKey}.jpg`
+            // key now contains full path and extension as well
+            resultObj['cover_art_url'] = `${urlMacro}/${visualKey}`
           }
           resultObj['url'] = url
           console.log('\t... adding resolved object to array ...'.green)
