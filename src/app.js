@@ -5,12 +5,19 @@ import convert from 'koa-convert'
 import cors from 'kcors'
 import cache from 'koa-cache-lite'
 import getListOfTracks from './s3'
+import envalid from 'envalid'
+
+const { str } = envalid
+
+const env = envalid.cleanEnv(process.env, {
+  ALLOWED_ORIGIN: str({default: 'https://resonate.is'}),
+})
 
 const app = new Koa()
 const router = koaRouter()
 const corsOptions = {
   origin: function (ctx) {
-    return ctx.request.origin
+    return  env.ALLOWED_ORIGIN
   }
 }
 
