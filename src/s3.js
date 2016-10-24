@@ -39,7 +39,7 @@ export default function () {
       if (err) {
         reject(err)
       } else {
-        const sampleSizeSetting = 10
+        const sampleSizeSetting = 7
         const sampleTracks = _.sampleSize(data.Contents, sampleSizeSetting)
         const resultsArray = sampleTracks.filter(obj => {
           /** hack to weed out any potential non .mp3 files */
@@ -50,7 +50,15 @@ export default function () {
         Promise.all(resultsArray)
           .then(res => {
             console.log('... all finished, providing result ...'.green)
-            resolve(res)
+            resolve(res.filter(function (x) {
+              var hasWeirdChars = false
+              Object.keys(x).map(function (k) {
+                  if (/.*\?UTF\-8\?.*/.test(x[k])) {
+                     hasWeirdChars = true
+                   }
+              })
+              return !hasWeirdChars
+            }))
           }).catch(err => {
             reject(err)
           })
