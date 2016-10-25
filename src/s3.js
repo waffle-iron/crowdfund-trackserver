@@ -3,6 +3,7 @@ import knox from 'knox'
 import AWS from 'aws-sdk'
 import 'colors'
 import envalid from 'envalid'
+import mimelib from 'mimelib'
 
 // Load environmental variables from .env file
 const { str } = envalid
@@ -39,7 +40,7 @@ export default function () {
       if (err) {
         reject(err)
       } else {
-        const sampleSizeSetting = 15
+        const sampleSizeSetting = 7
         const sampleTracks = _.sampleSize(data.Contents, sampleSizeSetting)
         const resultsArray = sampleTracks.filter(obj => {
           /** hack to weed out any potential non .mp3 files */
@@ -59,8 +60,7 @@ export default function () {
               })
               return !hasWeirdChars
             })
-            const reducedToSeven =  _.sampleSize(filtered, 7)
-            resolve(reducedToSeven)
+            resolve(filtered)
           }).catch(err => {
             reject(err)
           })
@@ -98,7 +98,7 @@ export function fetchTrackInfo (object) {
             'duration': 'x-amz-meta-track-duration'
           }
           Object.keys(metaMap).map(function (k) {
-            resultObj[k] = objectHeaders[metaMap[k]] ? objectHeaders[metaMap[k]] : ''
+            resultObj[k] = objectHeaders[metaMap[k]] ? mimelib.parseMimeWords(objectHeaders[metaMap[k]]) : ''
           })
           // cover art should be stored with the same uuid as the track for now, so check for visual
           // TODO:  allow for different file types (.gif, .webm)

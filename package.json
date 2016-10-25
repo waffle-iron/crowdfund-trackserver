@@ -28,6 +28,7 @@
     "koa-request-xhr": "^1.0.1",
     "koa-router": "^7.0.1",
     "lodash": "^4.16.2",
+    "mimelib": "^0.3.0",
     "pm2": "^2.0.15",
     "webpack": "^1.12.14",
     "webpack-node-externals": "^1.0.0"
