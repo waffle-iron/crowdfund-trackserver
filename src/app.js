@@ -4,20 +4,21 @@ import koaRouter from 'koa-router'
 import convert from 'koa-convert'
 import cors from 'kcors'
 import cache from 'koa-cache-lite'
+import xhr from 'koa-request-xhr'
 import getListOfTracks from './s3'
 import envalid from 'envalid'
 
 const { str } = envalid
 
 const env = envalid.cleanEnv(process.env, {
-  ALLOWED_ORIGIN: str({default: 'https://resonate.is'}),
+  ALLOWED_ORIGIN: str({default: 'https://resonate.is'})
 })
 
 const app = new Koa()
 const router = koaRouter()
 const corsOptions = {
   origin: function (ctx) {
-    return  env.ALLOWED_ORIGIN
+    return env.ALLOWED_ORIGIN
   }
 }
 
@@ -27,6 +28,7 @@ cache
     '/tracklist': 3 * 60 * 1000 // ms
   }, {
     debug: true,
+    allowHeaders: ['Origin', 'X-Requested-With'],
     ignoreNoCache: true
   })
 
@@ -59,8 +61,17 @@ app
     const ms = new Date() - start
     console.log(`${ctx.method} ${ctx.url} ${ctx.status} - ${ms}ms`)
   })
-  .use(convert(cache.middleware()))
   .use(convert(cors(corsOptions)))
+  .use(convert(xhr()))
+  .use(async (ctx, next) => {
+  // only respond if X-Requested-With: XMLHttpRequest header is present
+    if (ctx.state.xhr) {
+      await next()
+    } else {
+      ctx.redirect('https://resonate.is')
+    }
+  })
+  .use(convert(cache.middleware()))
   .use(router.routes())
   .use(router.allowedMethods())
 

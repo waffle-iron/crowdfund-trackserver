@@ -25,6 +25,7 @@
     "koa": "^2.0.0-alpha.3",
     "koa-cache-lite": "^3.4.2",
     "koa-convert": "^1.2.0",
+    "koa-request-xhr": "^1.0.1",
     "koa-router": "^7.0.1",
     "lodash": "^4.16.2",
     "pm2": "^2.0.15",
