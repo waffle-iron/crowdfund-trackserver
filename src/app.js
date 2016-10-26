@@ -5,13 +5,16 @@ import convert from 'koa-convert'
 import cors from 'kcors'
 import cache from 'koa-cache-lite'
 import xhr from 'koa-request-xhr'
+import conditional from 'koa-conditional-get'
+import etag from 'koa-etag'
 import getListOfTracks from './s3'
 import envalid from 'envalid'
 
-const { str } = envalid
+const { str, num } = envalid
 
 const env = envalid.cleanEnv(process.env, {
-  ALLOWED_ORIGIN: str({default: 'https://resonate.is'})
+  ALLOWED_ORIGIN: str({ default: 'https://resonate.is' }),
+  CACHE_TIME_MINUTES: num({ default: 3 })
 })
 
 const app = new Koa()
@@ -19,24 +22,23 @@ const router = koaRouter()
 const corsOptions = {
   origin: function (ctx) {
     return env.ALLOWED_ORIGIN
-  }
+  },
+  allowHeaders: ['Origin', 'X-Requested-With', 'ETag', 'Cache-Control'],
+  exposeHeaders: ['Origin', 'ETag'],
+  allowMethods: 'GET',
+  maxAge: 86400
 }
 
 // use in-memory cache
 cache
   .configure({
-    '/tracklist': 3 * 60 * 1000 // ms
+    '/tracklist': env.CACHE_TIME_MINUTES * 60 * 1000 // ms
   }, {
     debug: true,
-    allowHeaders: ['Origin', 'X-Requested-With'],
     ignoreNoCache: true
   })
 
 router
-  .get('/', async (ctx, next) => {
-    ctx.redirect('https://resonate.is')
-    await next()
-  })
   .get('/tracklist', async (ctx, next) => {
     try {
       const trackList = await getListOfTracks()
@@ -63,8 +65,10 @@ app
   })
   .use(convert(cors(corsOptions)))
   .use(convert(xhr()))
+  .use(conditional())
+  .use(etag())
   .use(async (ctx, next) => {
-  // only respond if X-Requested-With: XMLHttpRequest header is present
+    // only respond if X-Requested-With: XMLHttpRequest header is present
     if (ctx.state.xhr) {
       await next()
     } else {
