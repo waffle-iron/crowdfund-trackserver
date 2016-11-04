@@ -54,16 +54,16 @@ export default function () {
             const filtered = res.filter(function (x) {
               var hasWeirdChars = false
               Object.keys(x).map(function (k) {
-                  if (/.*\?UTF\-8\?.*/.test(x[k])) {
-                     hasWeirdChars = true
-                   }
+                if (/.*\?UTF\-8\?.*/.test(x[k])) {
+                  hasWeirdChars = true
+                }
               })
               return !hasWeirdChars
             })
             resolve(filtered)
           }).catch(err => {
-            reject(err)
-          })
+          reject(err)
+        })
       }
     })
   })
@@ -84,7 +84,7 @@ export function fetchTrackInfo (object) {
         reject(err)
       } else {
         console.log('\t... getting object metadata for processing ...'.cyan)
-        client.getFile(objectKey, function (err, res) {
+        client.headFile(objectKey, function (err, res) {
           if (err) {
             reject(err)
           }
@@ -97,6 +97,7 @@ export function fetchTrackInfo (object) {
             'album': 'x-amz-meta-album',
             'duration': 'x-amz-meta-track-duration'
           }
+          resultObj['url'] = url
           Object.keys(metaMap).map(function (k) {
             resultObj[k] = objectHeaders[metaMap[k]] ? mimelib.parseMimeWords(objectHeaders[metaMap[k]]) : ''
           })
@@ -104,15 +105,41 @@ export function fetchTrackInfo (object) {
           // TODO:  allow for different file types (.gif, .webm)
           const visualKey = objectHeaders['x-amz-meta-visual-key'] || null
           if (visualKey) {
-            // key now contains full path and extension as well
-            resultObj['cover_art_url'] = `${urlMacro}/${visualKey}`
+            console.log('\t... checking if thumbnail available ...'.yellow)
+            // check if smaller thumbnail is available
+            const thumbKey = visualKey.replace(keyVisualPath, keyVisualPath + '/80x80')
+            checkIfFileExists(thumbKey).then(function () {
+              // resolve with thumbnail
+              resultObj['cover_art_url'] = `${urlMacro}/${thumbKey}`
+              resolve(addObjectToResults(resultObj))
+            }).catch(function () {
+                // resolve with full size artwork
+                resultObj['cover_art_url'] = `${urlMacro}/${visualKey}`
+                resolve(addObjectToResults(resultObj))
+            })
+          } else {
+            // resolve without cover
+            resolve(addObjectToResults(resultObj))
           }
-          resultObj['url'] = url
-          console.log('\t... adding resolved object to array ...'.green)
-          console.log(JSON.stringify(resultObj, null, '\t'))
-          resolve(resultObj)
         })
       }
     })
   })
+}
+
+export function checkIfFileExists (key) {
+  return new Promise(function (resolve, reject) {
+    client.headFile(key, function (err, res) {
+      if (err || res.statusCode !== 200) {
+        reject(err)
+      }
+      resolve(res)
+    })
+  })
+}
+
+function addObjectToResults (resultObj) {
+  console.log(`\t... adding resolved object to array ...`.green)
+  console.log(JSON.stringify(resultObj, null, '\t'))
+  return resultObj
 }
