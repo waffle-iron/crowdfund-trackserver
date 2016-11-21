@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/resonatecoop/crowdfund-trackserver.png?label=ready&title=Ready)](https://waffle.io/resonatecoop/crowdfund-trackserver)
 # S3 Track Server for the Resonate Crowdfunding Player
 
 Basic server that fetches uploaded tracks from our S3 backend, and outputs them in the correct format for the [crowdfund player](https://github.com/resonatecoop/resonate-crowdfund-player).
